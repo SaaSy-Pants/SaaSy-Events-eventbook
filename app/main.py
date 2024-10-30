@@ -18,6 +18,7 @@ app.add_middleware(
 #Logging Middleware
 app.add_middleware(LoggingMiddleware)
 
+
 app.include_router(tickets.router, prefix='/ticket')
 app.include_router(health.router)
 
