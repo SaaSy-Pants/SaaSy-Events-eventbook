@@ -20,8 +20,8 @@ class TicketResource(BaseResource):
         )
         return result
 
-    def create_ticket(self, uid: str, eid: str, num_guests: int):
-        ticket = Ticket(TID=str(generate_uuid()), UID=uid, EID=eid, NumGuests=num_guests)
+    def create_ticket(self, tid: str, uid: str, eid: str, num_guests: int):
+        ticket = Ticket(TID=tid, UID=uid, EID=eid, NumGuests=num_guests)
         return self.data_service.insert_data_object(self.database, self.collection, ticket)
 
     def get_tickets_by_user(self, uid: str):
