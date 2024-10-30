@@ -1,26 +1,28 @@
-from typing import Annotated
-
 from fastapi import APIRouter
-from fastapi.params import Form
 from starlette.responses import JSONResponse
 
 from app.resources.ticket_resource import TicketResource
+from app.utils.utils import generate_uuid
 
 router = APIRouter()
 
 
 @router.post("", tags=["tickets"])
-async def book_ticket(uid: Annotated[str, Form()], eid: Annotated[str, Form()], num_guests: Annotated[int, Form()]):
+async def book_ticket(booking_details: dict):
     res = TicketResource(config=None)
-    result = res.create_ticket(uid, eid, num_guests)
-    if result['error'] is not None:
-        if result['status'] == 'bad request':
-            return JSONResponse(content=result, status_code=400)
+    try:
+        tid = str(generate_uuid())
+        result = res.create_ticket(tid, booking_details['uid'], booking_details['eid'], booking_details['num_guests'])
+        if result['error'] is not None:
+            if result['status'] == 'bad request':
+                return JSONResponse(content=result, status_code=400)
+            else:
+                return JSONResponse(content=result, status_code=500)
         else:
-            return JSONResponse(content=result, status_code=500)
-    else:
-        return JSONResponse(content=result, status_code=201)
-
+            result['TID'] = tid
+            return JSONResponse(content=result, status_code=201)
+    except AttributeError:
+        return JSONResponse(content='Bad Request', status_code=400)
 
 @router.get("/{tid}", tags=["tickets"])
 async def get_ticket(tid: str):
