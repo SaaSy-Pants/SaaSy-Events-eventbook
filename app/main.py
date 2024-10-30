@@ -11,7 +11,7 @@ app.add_middleware(
     allow_origins=['*']
 )
 
-app.include_router(tickets.router, prefix='/tickets')
+app.include_router(tickets.router, prefix='/ticket')
 app.include_router(health.router)
 
 
