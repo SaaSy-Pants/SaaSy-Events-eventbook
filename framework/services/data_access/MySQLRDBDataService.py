@@ -81,11 +81,44 @@ class MySQLRDBDataService(DataDataService):
             cursor = connection.cursor()
             cursor.execute(sql_statement, [key_value])
             result = cursor.fetchone()
+            if cursor.rowcount == 0:
+                return {"status": "bad request", "error": f"{key_field} does not exist"}
+            else:
+                return {"status": "fetched successfully", "details": result, "error": None}
         except Exception as e:
             if connection:
                 connection.close()
+            result = {"status": "failed", "error": str(e)}
 
         return result
+
+    def get_data_objects(self,
+                         database_name: str,
+                         collection_name: str,
+                         key_field: str,
+                         key_value: str):
+        """
+        Retrieves multiple data objects based on a key-value match.
+        """
+        connection = None
+        try:
+            sql_statement = f"SELECT * FROM {database_name}.{collection_name} WHERE {key_field}=%s"
+            connection = self._get_connection()
+            cursor = connection.cursor()
+            cursor.execute(sql_statement, [key_value])
+            results = cursor.fetchall()
+
+            if cursor.rowcount == 0:
+                return {"status": "bad request", "error": f"No records found for {key_field} = {key_value}"}
+            else:
+                return {"status": "fetched successfully", "tickets": results, "error": None}
+        except Exception as e:
+            if connection:
+                connection.close()
+            return {"status": "failed", "error": str(e)}
+        finally:
+            if connection:
+                connection.close()
 
     def insert_data_object(
             self,
@@ -123,3 +156,27 @@ class MySQLRDBDataService(DataDataService):
                 connection.close()
 
             return result
+
+    def delete_data_object(self, database_name: str, collection_name: str, key_field: str, key_value: str):
+        connection = None
+        try:
+            sql_statement = f"DELETE FROM {database_name}.{collection_name} WHERE {key_field}=%s"
+            connection = self._get_connection()
+            cursor = connection.cursor()
+            cursor.execute(sql_statement, [key_value])
+            connection.commit()
+            deleted_count = cursor.rowcount
+
+            if deleted_count == 0:
+                result = {"status": "bad request", "error": f"{key_field} does not exist"}
+            else:
+                result = {"status": "deletion successful", "error": None}
+
+            return result
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise Exception(f"Failed to delete data object: {str(e)}")
+        finally:
+            if connection:
+                connection.close()

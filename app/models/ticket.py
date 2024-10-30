@@ -3,10 +3,10 @@ from pydantic import BaseModel, Field
 
 
 class Ticket(BaseModel):
-    TID: str = Field(..., max_length=5, description="Ticket ID")
-    EID: str = Field(..., max_length=5, description="Event ID")
-    UID: str = Field(..., max_length=5, description="User ID")
-    QRLink: str = Field(..., max_length=255, description="QR Code Link")
+    TID: str = Field(..., description="Ticket ID")
+    EID: str = Field(..., description="Event ID")
+    UID: str = Field(..., description="User ID")
+    NumGuests: int = Field(1, description="Number of guests")
 
     class Config:
         json_schema_extra = {
@@ -14,6 +14,6 @@ class Ticket(BaseModel):
                 "TID": "T001",
                 "EID": "E001",
                 "UID": "U001",
-                "QRLink": "https://example.com/qr/T001"
+                "NumGuests": 2
             }
         }
