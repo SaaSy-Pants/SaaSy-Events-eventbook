@@ -12,7 +12,7 @@ router = APIRouter()
 async def book_ticket(booking_details: dict):
     res = TicketResource(config=None)
     try:
-        tid = f"T{generate_uuid()}"
+        tid = str(generate_uuid())
         result = res.create_ticket(tid, booking_details['uid'], booking_details['eid'], booking_details['num_guests'])
         if result['error'] is not None:
             if result['status'] == 'bad request':
