@@ -1,4 +1,4 @@
 import uuid
 
 def generate_uuid():
-    return uuid.uuid3()
+    return uuid.uuid4()
