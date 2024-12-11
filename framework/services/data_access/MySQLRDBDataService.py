@@ -96,13 +96,17 @@ class MySQLRDBDataService(DataDataService):
                          database_name: str,
                          collection_name: str,
                          key_field: str,
-                         key_value: str):
+                         key_value: str,
+                         limit:int, 
+                         offset:int,
+                         column_names: str = "*", 
+    ):
         """
         Retrieves multiple data objects based on a key-value match.
         """
         connection = None
         try:
-            sql_statement = f"SELECT * FROM {database_name}.{collection_name} WHERE {key_field}=%s"
+            sql_statement = f"SELECT {column_names} FROM {database_name}.{collection_name} WHERE {key_field}=%s LIMIT {limit} OFFSET {offset}"
             connection = self._get_connection()
             cursor = connection.cursor()
             cursor.execute(sql_statement, [key_value])
@@ -111,7 +115,7 @@ class MySQLRDBDataService(DataDataService):
             if cursor.rowcount == 0:
                 return {"status": "bad request", "error": f"No records found for {key_field} = {key_value}"}
             else:
-                return {"status": "fetched successfully", "tickets": results, "error": None}
+                return {"status": "fetched successfully", "result": results, "error": None}
         except Exception as e:
             if connection:
                 connection.close()
