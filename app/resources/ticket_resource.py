@@ -24,11 +24,22 @@ class TicketResource(BaseResource):
         ticket = Ticket(TID=tid, UID=uid, EID=eid, NumGuests=num_guests)
         return self.data_service.insert_data_object(self.database, self.collection, ticket)
 
-    def get_tickets_by_user(self, uid: str):
+    def get_tickets_by_user(self, uid: str, limit: int, offset: int):
         result = self.data_service.get_data_objects(
-            self.database, self.collection, key_field='UID', key_value=uid
+            self.database, self.collection, key_field='UID', key_value=uid, limit=limit, offset=offset,
         )
         return result
+    
+    def get_users_by_event(self, eid: str, limit: int, offset: int):
+        try:
+            result = self.data_service.get_data_objects(
+                self.database, self.collection, key_field='EID', key_value=eid, 
+                limit=limit, offset=offset, column_names="UID",
+            )
+            return result
+        
+        except Exception as e:
+            return {'error': str(e), 'status': 'bad request'}
 
     def cancel_ticket(self, tid: str):
         result = self.data_service.delete_data_object(

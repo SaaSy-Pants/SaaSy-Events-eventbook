@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi import Query
 from starlette.responses import JSONResponse
 import random
 
@@ -37,11 +38,14 @@ async def get_ticket(tid: str):
     else:
         return JSONResponse(content=result['details'], status_code=200)
 
-
 @router.get("", tags=["tickets"])
-async def get_tickets_by_user(uid: str):
+async def get_tickets_by_user(
+    uid: str, 
+    limit: int = Query(10, le=100),  # Default limit is 10, maximum 100
+    offset: int = Query(0, ge=0)     # Default offset is 0, no negative offsets
+):
     res = TicketResource(config=None)
-    result = res.get_tickets_by_user(uid)
+    result = res.get_tickets_by_user(uid, limit, offset)
 
     if result['error'] is not None:
         if result['status'] == 'bad request':
@@ -49,7 +53,26 @@ async def get_tickets_by_user(uid: str):
         else:
             return JSONResponse(content={"error": "Database error"}, status_code=500)
     else:
-        return JSONResponse(content={"tickets": result['tickets']}, status_code=200)
+        return JSONResponse(content={"tickets": result['result']}, status_code=200)
+
+@router.get("/event/{eid}/users", tags=["users"])
+async def get_users_by_event(
+    eid: str, 
+    limit: int = Query(10, le=100),  # Default limit is 10, maximum 100
+    offset: int = Query(0, ge=0)     # Default offset is 0, no negative offsets
+):
+    res = TicketResource(config=None)
+    result = res.get_users_by_event(eid, limit, offset)
+
+    print(result)
+
+    if result['error'] is not None:
+        if result['status'] == 'bad request':
+            return JSONResponse(content={"error": "Event not found"}, status_code=404)
+        else:
+            return JSONResponse(content={"error": "Database error"}, status_code=500)
+    else:
+        return JSONResponse(content={"uids": result['result']}, status_code=200)
 
 
 @router.delete("/{tid}", tags=["tickets"])
