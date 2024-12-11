@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from starlette.responses import JSONResponse
+import random
 
 from app.resources.ticket_resource import TicketResource
 from app.utils.utils import generate_uuid
@@ -11,7 +12,7 @@ router = APIRouter()
 async def book_ticket(booking_details: dict):
     res = TicketResource(config=None)
     try:
-        tid = str(generate_uuid())
+        tid = f"T{generate_uuid()}"
         result = res.create_ticket(tid, booking_details['uid'], booking_details['eid'], booking_details['num_guests'])
         if result['error'] is not None:
             if result['status'] == 'bad request':
