@@ -34,7 +34,7 @@ class TicketResource(BaseResource):
         try:
             result = self.data_service.get_data_objects(
                 self.database, self.collection, key_field='EID', key_value=eid, 
-                limit=limit, offset=offset, column_names="UID",
+                limit=limit, offset=offset,
             )
             return result
         
